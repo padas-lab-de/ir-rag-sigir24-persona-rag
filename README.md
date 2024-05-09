@@ -39,11 +39,11 @@ export MIXTRAL_API_KEY='your-mixtral-api-key' #Optional
 Use the main script to run different functionalities. 
 ```bash
 #To run the model
-poetry run python scripts/main.py run --dataset nq --topk 5
+poetry run python -m scripts.main run --dataset nq --topk 5
 #To build results into a CSV
-poetry run python scripts/main.py build --dataset nq --topk 5
+poetry run python -m scripts.main build --dataset nq --topk 5
 #To evaluate the model outputs
-poetry run python scripts/main.py evaluate --dataset nq --topk 5
+poetry run python -m scripts.main evaluate --dataset nq --topk 5
 ```
 
 ### Reproduction

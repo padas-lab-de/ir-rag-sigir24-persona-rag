@@ -2,9 +2,7 @@ import json
 import os
 import csv
 
-def main(args):
-    dataset = args.dataset
-    topk = args.topk
+def main(dataset, topk):
 
     def acc(output):
         correctness = 'True' if any(answer.lower() in output.lower() for answer in answer_key) else 'False'

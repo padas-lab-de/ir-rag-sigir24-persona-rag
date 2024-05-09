@@ -1,30 +1,38 @@
 import time
 import openai
 import re
+import os
 import asyncio
 import types
 from typing import Union
 
-openai.api_key = 'sk-<your-api-key>'
+openai.api_key = os.getenv('OPENAI_API_KEY')
+MODEL = os.getenv('MODEL')
+DEFAULT_PROMPT = os.getenv('DEFAULT_PROMPT')
 
-MODEL = 'gpt-4'
-DEFAULT_PROMPT = ""
+
 
 class Agent:
-    def __init__(self,template, model=MODEL, key_map:Union[dict,None]=None) -> None:
+    def __init__(self, template=None, model=None, key_map=None):
         self.message = []
-        if isinstance(template,str):
+        self.model = model
+        self.key_map = key_map
+        self.last_response = None 
+        # Initialize template_list and TEMPLATE based on the type and content of template
+        if isinstance(template, str):
             self.TEMPLATE = template
-        elif isinstance(template,list) and len(template)>1:
+            self.template_list = [template]  # Ensure template_list is not empty
+        elif isinstance(template, list) and len(template) > 0:
             self.TEMPLATE = template[0]
             self.template_list = template
-        self.key_map = key_map
-        self.model = model
-        self.func_dic = {
+        else:
+            self.TEMPLATE = DEFAULT_PROMPT  # Use a default prompt if template is None or not a list/str
+            self.template_list = [DEFAULT_PROMPT] if DEFAULT_PROMPT else []
 
+        self.func_dic = {
+            'default': self.get_output,
+            'padding_template': self.padding_template
         }
-        self.func_dic['default'] = self.get_output
-        self.func_dic['padding_template'] = self.padding_template
 
     def send_message(self):
         assert len(self.message) != 0 and self.message[-1]['role'] != 'assistant', 'ERROR in message format'
@@ -52,7 +60,6 @@ class Agent:
             #aviod frequently request
 
     async def send_message_async(self):
-        #TODO add try-expect block
         try:
             ans = await openai.ChatCompletion.acreate(
                 model = self.model,
@@ -111,11 +118,12 @@ class Agent:
         return self.message[-1]['content']
     
     def parse_message(self, completion):
-        content =  completion['choices'][0]['message']['content']
+        content = completion['choices'][0]['message']['content']
         role = completion['choices'][0]['message']['role']
-        record =  {'role':role, 'content':content}
-        self.message.append(record)
-        return record
+        if not (self.message and self.message[-1]['role'] == role):
+            record = {'role': role, 'content': content}
+            self.message.append(record)
+            self.last_response = record 
     
     def regist_fn(self, func, name):
         setattr(self,name,types.MethodType(func,self))

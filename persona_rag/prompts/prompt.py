@@ -69,4 +69,33 @@ Global Memory:
 Task Description:
 Using the retrieved passages and global memory pool, identify methods for collecting implicit and explicit user feedback. Suggest ways to refine feedback mechanisms to align with user preferences, such as ratings, surveys, or behavioral data. Your recommendations should guide the Feedback Agent in updating other agents' models for more personalized and relevant results.
 """,
+        "global_memory_update": """You are responsible for maintaining and enriching the Global Message Pool, serving as a central hub for inter-agent communication.
+Question: 
+{question}
+Agent Responses: 
+{agent_responses}
+Existing Global Memory: 
+{global_memory}
+
+Task Description:
+Using the responses from individual agents and the existing global memory, consolidate key insights into a shared repository. Your goal is to organize a comprehensive message pool that includes agent-specific findings, historical user preferences, session-specific behaviors, search queries, and user feedback. This structure should provide all agents with meaningful data points and strategic recommendations, reducing redundant communication and improving the system's overall efficiency.
+""",  
+        "cognitive": """Your task is to help the Cognitive Agent enhance its understanding of user insights to continuously improve the system’s responses.
+        
+Question: 
+{question}
+Initial Response: 
+{cot_answer}
+User Insights from Interaction Analysis: 
+{global_memory}
+
+Task Description:
+Verify the reasoning process in the initial response for errors or misalignments. Use insights from user interaction analysis to refine this response, correcting any inaccuracies and enhancing the query answers based on user profile. Ensure that your refined response aligns more closely with the user’s immediate needs and incorporates foundational or advanced knowledge from other sources.
+Answer:
+""",
+        "vanilla_chatgpt": """Please provide concise answers to the questions. Avoid unnecessary details:
+        
+{question}
+""",
+ 
     }

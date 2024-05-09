@@ -3,8 +3,8 @@ from ..agents.agent import Agent
 from typing import List
 import json
 
-class Task:
 
+class Task:
     def __init__(self, agent, pre_func_name=None, input=None, post_func_name=None, output=None) -> None:
         self.agent = agent
         self.pre_func_name = pre_func_name
@@ -12,11 +12,12 @@ class Task:
         self.post_func_name = post_func_name
         self.output = self.agent if output == None else output
         self.relyon = None
+        self.executed = False
 
     def get_output(self):
         return self.output
     
-    def excute_pre_func(self):
+    def execute_pre_func(self):
         #prepare input
         if isinstance(self.input, Agent):
             self.relyon = self.input
@@ -40,7 +41,7 @@ class Task:
         ret = self.agent.func_dic[self.pre_func_name](self.input)
         return ret
     
-    def excute_post_func(self):
+    def execute_post_func(self):
         ret = self.agent.func_dic[self.post_func_name]()
         self.output = ret
         return ret
@@ -51,9 +52,11 @@ def create_task(agent, pre_func, input, post_func):
 
 
 class Workflow:
-    def __init__(self, agents: AgentGroup, workflow_list=[]) -> None:
+    def __init__(self, agents: AgentGroup, workflow_list=[], global_memory="", current_question="") -> None:
         self.agents = agents
+        self.current_question = current_question
         self.workflow_list = workflow_list
+        self.global_memory = global_memory
 
     def init_workflow(self):
         self.workflow_list = []
@@ -68,31 +71,114 @@ class Workflow:
         return output_list
 
     def pop_workflow(self):
-        # TODO
         pass
 
     def get_previous_workflow(self):
-        # TODO
         pass
 
     def execute(self):
         for item in self.workflow_list:
             if isinstance(item, Task):
-                item.execute_pre_func()
-                self.agents.serial_send(item.agent)
-                item.execute_post_func()
+                self.execute_task(item)
             elif isinstance(item, list):
-                parallel_agents = []
                 for task in item:
-                    parallel_agents.append(task.agent)
-                    task.execute_pre_func()
-                self.agents.parallel_send(parallel_agents)
-                for task in item:
-                    task.execute_post_func()
+                    self.execute_task(task)
+                    
+        self.execute_cognitive_task()
+        self.execute_vanilla_chatgpt_task()
+
+    def execute_task(self, task):
+        task.execute_pre_func()
+        self.agents.serial_send(task.agent) 
+        task.execute_post_func()
+        
+        if task.agent.name in ["user_profile", "contextual_retrieval", "live_session", "document_ranking", "feedback"]:
+            self.update_global_memory(task.agent.name, task.get_output())
+
+        
+        self.pass_updated_global_memory_to_next_tasks(task)
+        
+    def execute_cognitive_task(self):
+        cot_answer = self.agents.agent_dic["cot"].get_output() 
+        cognitive_input = {
+            "question": self.current_question,
+            "cot_answer": cot_answer,
+            "global_memory": self.global_memory
+        }
+        cognitive_task = create_task(
+            agent=self.agents.agent_dic["cognitive"],
+            pre_func="padding_template",
+            input=cognitive_input,
+            post_func="default"
+        )
+        self.execute_task(cognitive_task)
+        
+    def execute_vanilla_chatgpt_task(self):
+        vanilla_chatgpt_input = {
+            "question": self.current_question,
+        }
+        vanilla_chatgpt_task = create_task(
+            agent=self.agents.agent_dic["vanilla_chatgpt"],
+            pre_func="padding_template",
+            input=vanilla_chatgpt_input,
+            post_func="default"
+        )
+        self.execute_task(vanilla_chatgpt_task)
+    
+    def pass_updated_global_memory_to_next_tasks(self, current_task):
+        # Mark the current task as executed
+        current_task.executed = True
+
+        # Update global memory for all subsequent unexecuted tasks
+        for task in self.workflow_list:
+            if isinstance(task, Task) and not task.executed:
+                task.input['global_memory'] = self.global_memory
+            elif isinstance(task, list):  # For parallel tasks
+                for sub_task in task:
+                    if not sub_task.executed:
+                        sub_task.input['global_memory'] = self.global_memory
+        
+    def execute_global_memory_update(self, agent_responses):
+        """
+        Execute the global_memory_update prompt with the latest agent response,
+        and update the global memory to only include the 'content' part of the response.
+        """
+        
+        input_for_global_memory_update = {
+            "question": self.current_question,
+            "agent_responses": json.dumps(agent_responses, ensure_ascii=False),
+            "global_memory": self.global_memory
+        }
+
+        agent = self.agents.agent_dic["global_memory_update"]
+        agent.padding_template(input_for_global_memory_update)
+        response = agent.send_message()  
+        
+        if response and "choices" in response and len(response["choices"]) > 0:
+            content = response["choices"][0]["message"]["content"]
+            self.global_memory = content  
+        else:
+            print("Warning: Unexpected response format received from global_memory_update agent.")
+
+    def update_global_memory(self, agent_name, agent_response):
+        """
+        Update the global memory based on the latest agent response.
+        """
+        # Check if the agent is one of the specified agents before updating
+        if agent_name in ["user_profile", "contextual_retrieval", "live_session", "document_ranking", "feedback"]:
+            agent_responses = {agent_name: agent_response}
+            self.execute_global_memory_update(agent_responses)
+
+    def get_global_memory(self):
+        """
+        Return the current state of the global memory.
+        """
+        return self.global_memory
 
     def save_log(self, file_path):
         log = self.agents.save_all_messages(file_path)
         log['question_info'] = self.workflow_list[0].input
+        log['global_memory_update'] = self.global_memory
         with open(file_path, 'w', encoding='utf-8') as file:
             json.dump(log, file)
 

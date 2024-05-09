@@ -1,7 +1,11 @@
 import argparse
-from execution.run import main as run_main
-from execution.build import main as build_main
-from evaluation.evaluate import main as evaluate_main
+from dotenv import load_dotenv
+load_dotenv()
+
+from scripts.execution.run import main as run_main
+from scripts.execution.build import main as build_main
+from scripts.evaluation.evaluate import evaluate as evaluate_main
+
 
 def main():
     parser = argparse.ArgumentParser(description="Control script for running PersonaRAG functionalities")
@@ -23,11 +27,11 @@ def main():
     parser_evaluate = subparsers.add_parser('evaluate', help='Evaluate the model outputs')
     parser_evaluate.add_argument('--dataset', required=True, help='Dataset name')
     parser_evaluate.add_argument('--topk', type=int, required=True, help='Top K passages to consider')
-    parser_evaluate.set_defaults(func=lambda args: evaluate_main(args.dataset, args.topk))
+    parser_evaluate.set_defaults(func=evaluate_main)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
-        args.func(args)
+        args.func(args.dataset, args.topk)
     else:
         parser.print_help()
 

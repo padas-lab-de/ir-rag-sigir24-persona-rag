@@ -5,9 +5,11 @@ from ..agents.agent import *
 from ..agents.group import *
 from ..workflows.workflow import *
 import json
+import os
 from datetime import datetime
 import traceback
 
+MODEL = os.getenv('MODEL')
 
 def create_agent_group(prompt: Prompt):
     empty_dict = {}
@@ -19,10 +21,13 @@ def create_agent_group(prompt: Prompt):
         "live_session": "live_session_reply",
         "document_ranking": "document_ranking_reply",
         "feedback": "feedback_reply",
+        "cognitive": "cognitive_reply",
+        "vanilla_chatgpt": "vanilla_chatgpt_reply"
     }
 
     for key, val in prompt.template.items():
-        group.add_agent(Agent(template=val, model="gpt-4", key_map=key_map), key)
+        group.add_agent(Agent(template=val, model=MODEL, key_map=key_map), key)
+        
     return group
 
 
@@ -31,8 +36,9 @@ def create_workflow(group: AgentGroup, init_input: dict) -> Workflow:
     init_input: A dict, whose key should match the variable in the template
     the init_input dict should include keys: question, choices_combined, passages
     """
-
-    workflow = Workflow(group)
+    
+    question = init_input.get('question', '')
+    workflow = Workflow(group, current_question=question)
 
     task1_output = workflow.push_workflow(
         create_task(
@@ -44,7 +50,10 @@ def create_workflow(group: AgentGroup, init_input: dict) -> Workflow:
     )
 
     def prepare_first_round(self: Agent, input):
-        self.TEMPLATE = self.template_list[1]
+        if len(self.template_list) > 1:
+            self.TEMPLATE = self.template_list[1]
+        else:
+            self.TEMPLATE = self.template_list[0] if self.template_list else ""
         input[self.name] = self.get_output()
         self.padding_template(input)
 
@@ -97,39 +106,6 @@ def create_workflow(group: AgentGroup, init_input: dict) -> Workflow:
                 agent=workflow.agents.agent_dic["feedback"],
                 pre_func="padding_template",
                 input=new_init_input,
-                post_func="default",
-            ),
-        ]
-    )
-
-    first_round_input = copy.deepcopy(init_input)
-    first_round_input["reply"] = task1_output
-    origin_cot = first_round_input
-
-    workflow.push_parallel_workflow(
-        [
-            create_task(
-                agent=workflow.agents.agent_dic["anchoring"],
-                pre_func="prepare_first_round",
-                input=origin_cot,
-                post_func="default",
-            ),
-            create_task(
-                agent=workflow.agents.agent_dic["associate"],
-                pre_func="prepare_first_round",
-                input=origin_cot,
-                post_func="default",
-            ),
-            create_task(
-                agent=workflow.agents.agent_dic["logician"],
-                pre_func="prepare_first_round",
-                input=origin_cot,
-                post_func="default",
-            ),
-            create_task(
-                agent=workflow.agents.agent_dic["cognition"],
-                pre_func="prepare_first_round",
-                input=origin_cot,
                 post_func="default",
             ),
         ]
