@@ -1,0 +1,72 @@
+[
+    {
+        "column": "cognitive_output",
+        "F1": 0.03553248138791929,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 67.5,
+        "BLEU": 0.14070885517312026,
+        "Norm_Avg_Sentence_Length": 0.09347399411187439,
+        "Norm_Avg_Syllables": 0.11619483763530392
+    },
+    {
+        "column": "cot_output",
+        "F1": 0.04952834933296246,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 67.5,
+        "BLEU": 0.13314118849987827,
+        "Norm_Avg_Sentence_Length": 0.07338076545632974,
+        "Norm_Avg_Syllables": 0.07766444629475437
+    },
+    {
+        "column": "vanilla_chatgpt_output",
+        "F1": 0.2841199245049627,
+        "EM": 0.1,
+        "PM": 0.4,
+        "Accuracy": 62.5,
+        "BLEU": 0.004032378750821384,
+        "Norm_Avg_Sentence_Length": 0.012168792934249264,
+        "Norm_Avg_Syllables": 0.013030807660283094
+    },
+    {
+        "column": "guideline_output",
+        "F1": 0.01498379383485284,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 47.5,
+        "BLEU": 0.21014712396865667,
+        "Norm_Avg_Sentence_Length": 0.19116781157998036,
+        "Norm_Avg_Syllables": 0.2168401332223147
+    },
+    {
+        "column": "vanilla_rag_output",
+        "F1": 0.1405973110870799,
+        "EM": 0.025,
+        "PM": 0.125,
+        "Accuracy": 50.0,
+        "BLEU": 0.02212138319105975,
+        "Norm_Avg_Sentence_Length": 0.022252208047105003,
+        "Norm_Avg_Syllables": 0.023251457119067447
+    },
+    {
+        "column": "con_output",
+        "F1": 0.023237688444757036,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 65.0,
+        "BLEU": 1.0,
+        "Norm_Avg_Sentence_Length": 0.15701668302257116,
+        "Norm_Avg_Syllables": 0.1744796003330558
+    },
+    {
+        "column": "self_rerank_output",
+        "F1": 0.006116778518746183,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 40.0,
+        "BLEU": 0.2512053474472221,
+        "Norm_Avg_Sentence_Length": 0.3688910696761531,
+        "Norm_Avg_Syllables": 0.3884054954204829
+    }
+]

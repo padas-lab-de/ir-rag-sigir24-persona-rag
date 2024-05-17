@@ -1,0 +1,72 @@
+[
+    {
+        "column": "cognitive_output",
+        "F1": 0.02306743374457566,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 94.73684210526316,
+        "BLEU": 0.18387200903198347,
+        "Norm_Avg_Sentence_Length": 0.17944435391885283,
+        "Norm_Avg_Syllables": 0.20819001882017005
+    },
+    {
+        "column": "cot_output",
+        "F1": 0.03422665328744622,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 89.47368421052632,
+        "BLEU": 0.14079835019229975,
+        "Norm_Avg_Sentence_Length": 0.10318559556786704,
+        "Norm_Avg_Syllables": 0.09909792978129667
+    },
+    {
+        "column": "vanilla_chatgpt_output",
+        "F1": 0.30696347285165676,
+        "EM": 0.08955468878704168,
+        "PM": 0.5263157894736842,
+        "Accuracy": 97.36842105263158,
+        "BLEU": 0.00022027938246853613,
+        "Norm_Avg_Sentence_Length": 0.00635489652924882,
+        "Norm_Avg_Syllables": 0.006035433837367772
+    },
+    {
+        "column": "guideline_output",
+        "F1": 0.006586806719738227,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 42.10526315789474,
+        "BLEU": 0.21627206560510107,
+        "Norm_Avg_Sentence_Length": 0.2961544728694802,
+        "Norm_Avg_Syllables": 0.29683950937763653
+    },
+    {
+        "column": "vanilla_rag_output",
+        "F1": 0.12882848923012843,
+        "EM": 0.010152349098021093,
+        "PM": 0.10526315789473684,
+        "Accuracy": 78.94736842105263,
+        "BLEU": 0.003996316163772483,
+        "Norm_Avg_Sentence_Length": 0.021956982238878927,
+        "Norm_Avg_Syllables": 0.021318709844895842
+    },
+    {
+        "column": "con_output",
+        "F1": 0.015075568282507203,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 81.57894736842105,
+        "BLEU": 1.0,
+        "Norm_Avg_Sentence_Length": 0.21973276845364179,
+        "Norm_Avg_Syllables": 0.22026088649490555
+    },
+    {
+        "column": "self_rerank_output",
+        "F1": 0.007837551061733913,
+        "EM": 0.0,
+        "PM": 0.0,
+        "Accuracy": 81.57894736842105,
+        "BLEU": 0.3165928287900029,
+        "Norm_Avg_Sentence_Length": 0.47767638911520294,
+        "Norm_Avg_Syllables": 0.46807060808618334
+    }
+]

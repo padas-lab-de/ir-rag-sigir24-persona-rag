@@ -1,7 +1,7 @@
 # PersonaRAG: PersonaRAG: Enhancing Retrieval-Augmented Generation Systems with User-Centric Agents
 
 Source code for our paper :  
-***PersonaRAG: PersonaRAG: Enhancing Retrieval-Augmented Generation Systems with User-Centric Agents***
+***PersonaRAG: Enhancing Retrieval-Augmented Generation Systems with User-Centric Agents***
 
 
 ## Overview

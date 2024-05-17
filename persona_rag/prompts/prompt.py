@@ -8,7 +8,6 @@ Generation Format:
 Reasoning process:
 Answer:
 """,
-        # TODO
         "user_profile": """Your task is to help the User Profile Agent improve its understanding of user preferences based on ranked document lists and the shared global memory pool.
 
 Question:
@@ -78,9 +77,9 @@ Existing Global Memory:
 {global_memory}
 
 Task Description:
-Using the responses from individual agents and the existing global memory, consolidate key insights into a shared repository. Your goal is to organize a comprehensive message pool that includes agent-specific findings, historical user preferences, session-specific behaviors, search queries, and user feedback. This structure should provide all agents with meaningful data points and strategic recommendations, reducing redundant communication and improving the system's overall efficiency.
+Using the responses from individual agents and the existing global memory, consolidate key insights into a shared repository. Your goal is to organize a comprehensive message pool that includes agent-specific findings, historical user preferences, session-specific behaviors, search queries, and user feedback. This structure should provide all agents with meaningful data points and strategic recommendations, reducing redundant communication and improving the system's overall efficiency. Focus on the essential details only.
 """,  
-        "cognitive": """Your task is to help the Cognitive Agent enhance its understanding of user insights to continuously improve the system’s responses.
+        "cognitive": """Your task is to help the Cognitive Agent enhance its understanding of user insights to continuously improve the system's responses.
         
 Question: 
 {question}
@@ -90,12 +89,50 @@ User Insights from Interaction Analysis:
 {global_memory}
 
 Task Description:
-Verify the reasoning process in the initial response for errors or misalignments. Use insights from user interaction analysis to refine this response, correcting any inaccuracies and enhancing the query answers based on user profile. Ensure that your refined response aligns more closely with the user’s immediate needs and incorporates foundational or advanced knowledge from other sources.
+Verify the reasoning process in the initial response for errors or misalignments. Use insights from user interaction analysis to refine this response, correcting any inaccuracies and enhancing the query answers based on user profile. Ensure that your refined response aligns more closely with the user's immediate needs and incorporates foundational or advanced knowledge from other sources.
 Answer:
 """,
         "vanilla_chatgpt": """Please provide concise answers to the questions. Avoid unnecessary details:
         
 {question}
 """,
- 
+        "guideline": """You are a knowledgeable and patient professor whose role is to guide students in solving problems correctly.
+        
+Here is a question: 
+{question}
+
+Please provide a detailed analysis.
+Note: Since your responsibility is to guide students in answering the question, your analysis should think step by step. Please note that your role is to guide them step by step through the problem, so please don't give them the final result.
+""",
+        "vanilla_rag": """Passages: 
+{passages}
+Based on these texts, answer these questions:
+{question}
+""",
+        "con": """Task Description:
+1. Read the given question and five Wikipedia passages to gather relevant information.
+2. Write reading notes summarizing the key points from these passages.
+3. Discuss the relevance of the given question and Wikipedia passages.
+4. If some passages are relevant to the given question, provide a brief answer based on the passages.
+5. If no passage is relevant, directly provide the answer without considering the passages.
+
+Question: 
+{question}
+Passage: 
+{passages}
+""",
+        "self_rerank": """Complete the following task:
+        
+The questions that need to be answered are: 
+{question}
+To answer these questions, I retrieved some passages.
+Passages: 
+{passages}
+
+Based on the content of the questions to be answered, Please label each passage with two tags and give the reason, the first one is whether it is useful or not, and the second one is whether it is relevant or not,
+The four possible scenarios are as follows:
+1.<useful><relevant>, 2.<useless><relevant>, 3.<useful><irrelevant>, 4.<useless><irrelevant>.
+Generation Format:
+1. passage:..., label:..., reason:...
+"""
     }

@@ -52,9 +52,10 @@ def create_task(agent, pre_func, input, post_func):
 
 
 class Workflow:
-    def __init__(self, agents: AgentGroup, workflow_list=[], global_memory="", current_question="") -> None:
+    def __init__(self, agents: AgentGroup, workflow_list=[], global_memory="", current_question="", current_passages=[]) -> None:
         self.agents = agents
         self.current_question = current_question
+        self.current_passages = current_passages
         self.workflow_list = workflow_list
         self.global_memory = global_memory
 
@@ -86,6 +87,10 @@ class Workflow:
                     
         self.execute_cognitive_task()
         self.execute_vanilla_chatgpt_task()
+        self.execute_guideline_task()
+        self.execute_vanilla_rag_task()
+        self.execute_con_task()
+        self.execute_self_rerank_task()
 
     def execute_task(self, task):
         task.execute_pre_func()
@@ -124,6 +129,57 @@ class Workflow:
             post_func="default"
         )
         self.execute_task(vanilla_chatgpt_task)
+        
+    def execute_guideline_task(self):
+        guideline_input = {
+            "question": self.current_question,
+        }
+        guideline_task = create_task(
+            agent=self.agents.agent_dic["guideline"],
+            pre_func="padding_template",
+            input=guideline_input,
+            post_func="default"
+        )
+        self.execute_task(guideline_task)
+        
+    def execute_self_rerank_task(self):
+        self_rerank_input = {
+            "question": self.current_question,
+            "passages": self.current_passages,
+        }
+        self_rerank_task = create_task(
+            agent=self.agents.agent_dic["self_rerank"],
+            pre_func="padding_template",
+            input=self_rerank_input,
+            post_func="default"
+        )
+        self.execute_task(self_rerank_task)
+        
+    def execute_con_task(self):
+        con_input = {
+            "question": self.current_question,
+            "passages": self.current_passages, 
+        }
+        con_task = create_task(
+            agent=self.agents.agent_dic["con"],
+            pre_func="padding_template",
+            input=con_input,
+            post_func="default"
+        )
+        self.execute_task(con_task)
+        
+    def execute_vanilla_rag_task(self):
+        vanilla_rag_input = {
+            "question": self.current_question,
+            "passages": self.current_passages, 
+        }
+        vanilla_rag_task = create_task(
+            agent=self.agents.agent_dic["vanilla_rag"],
+            pre_func="padding_template",
+            input=vanilla_rag_input,
+            post_func="default"
+        )
+        self.execute_task(vanilla_rag_task)
     
     def pass_updated_global_memory_to_next_tasks(self, current_task):
         # Mark the current task as executed
@@ -154,8 +210,9 @@ class Workflow:
         agent.padding_template(input_for_global_memory_update)
         response = agent.send_message()  
         
-        if response and "choices" in response and len(response["choices"]) > 0:
-            content = response["choices"][0]["message"]["content"]
+        # Check if the response has the expected structure
+        if hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and hasattr(response.choices[0].message, "content"):
+            content = response.choices[0].message.content
             self.global_memory = content  
         else:
             print("Warning: Unexpected response format received from global_memory_update agent.")

@@ -22,7 +22,11 @@ def create_agent_group(prompt: Prompt):
         "document_ranking": "document_ranking_reply",
         "feedback": "feedback_reply",
         "cognitive": "cognitive_reply",
-        "vanilla_chatgpt": "vanilla_chatgpt_reply"
+        "vanilla_chatgpt": "vanilla_chatgpt_reply",
+        "guideline": "guideline_reply",
+        "vanilla_rag": "vanilla_rag_reply",
+        "con": "con_reply",
+        "self_rerank" : "self_rerank_reply"
     }
 
     for key, val in prompt.template.items():
@@ -38,7 +42,8 @@ def create_workflow(group: AgentGroup, init_input: dict) -> Workflow:
     """
     
     question = init_input.get('question', '')
-    workflow = Workflow(group, current_question=question)
+    passages = init_input.get('passages', [])
+    workflow = Workflow(group, current_question=question, current_passages=passages)
 
     task1_output = workflow.push_workflow(
         create_task(
